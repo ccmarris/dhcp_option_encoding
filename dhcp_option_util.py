@@ -14,7 +14,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20210720
+ Date Last Updated: 20210722
 
 Copyright 2021 Chris Marrison / Infoblox
 
@@ -44,13 +44,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------
 """
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __author__ = 'Chris Marrison'
 __email__ = 'chris@infoblox.com'
 
 import bloxone
 import argparse
 import logging
+import yaml
+from pprint import pprint
 import os
 
 
@@ -60,12 +62,61 @@ def parseargs():
     parser.add_argument('-c', '--config', action="store", help="Path to database file", required=True)
     parser.add_argument('-p', '--output_path', action="store", default='', help="Output file path (optional)")
     parser.add_argument('--dump', type=str, default='', help="Dump Vendor")
-    parser.add_argument('--vendor', nargs=2, type=str, default='', help="Vendor Identifier")
+    parser.add_argument('--vendor', type=str, default='', help="Vendor Identifier")
     parser.add_argument('-v', '--version', action='store_true', help="Config Version")
     parser.add_argument('-y', '--yaml', action="store", help="Alternate yaml config file for objects")
     parser.add_argument('--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     return parser.parse_args()
+
+
+def dump_vendor(vendor):
+    '''
+    '''
+    global definitions
+    global dhcp_encoder
+
+    if definitions.included(vendor):
+        print(f'Vendor: ')
+        print(yaml.dump(definitions.dump_vendor_def(vendor)))
+    else:
+        print(f'Vendor: {vendor} not found.')
+    
+    return
+
+
+def process_vendor(vendor):
+    '''
+    '''
+    global definitions
+    global dhcp_encoder
+
+    if definitions.included(vendor):
+        sub_opts = definitions.sub_options(vendor)
+        if len(sub_opts):
+            encoded_opts = dhcp_encoder.encode_dhcp_option(sub_opts)
+            print(f'Vendor: {vendor}, Encoding: {encoded_opts}')
+        else:
+            print(f'Vendor: {vendor} has no sub-options to encode')
+    
+    return
+
+
+def process_all():
+    '''
+    '''
+    global definitions
+    global dhcp_encoder
+
+    for vendor in definitions.vendors():
+        sub_opts = definitions.sub_options(vendor)
+        if len(sub_opts):
+            encoded_opts = dhcp_encoder.encode_dhcp_option(sub_opts)
+            print(f'Vendor: {vendor}, Encoding: {encoded_opts}')
+        else:
+            print(f'Vendor: {vendor} has no sub-options to encode')
+
+    return
 
 
 def main():
@@ -75,16 +126,18 @@ def main():
     exitcode = 0
     options = parseargs()
 
+    global definitions
+    global dhcp_encoder
+
     definitions = bloxone.DHCP_OPTION_DEFS(options.config)
     dhcp_encoder = bloxone.dhcp_encode()
 
-    for vendor in definitions.vendors():
-        sub_opts = definitions.sub_options(vendor)
-        if len(sub_opts):
-            encoded_opts = dhcp_encoder.encode_dhcp_option(sub_opts)
-            print(f'Vendor: {vendor}, Encoding: {encoded_opts}')
-        else:
-            print(f'Vendor: {vendor} has no sub-options to encode')
+    if options.dump:
+        dump_vendor(options.dump)
+    elif options.vendor:
+        process_vendor(options.vendor)
+    else:
+        process_all()
         
     return exitcode
 

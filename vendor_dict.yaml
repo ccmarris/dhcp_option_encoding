@@ -5,6 +5,7 @@ version: 0.0.1
 vendors:
 
   Sample-Vendor:
+      vci: sample-vci
       description: My Vendor Class
       option-def: 
         parent-option:
@@ -22,6 +23,7 @@ vendors:
 
 
   MS-UC-Client:
+      vci: MS-UC-Client
       description: Microsoft Lync Client
       option-def:
         parent-option:
@@ -62,6 +64,7 @@ vendors:
   # Option 43 sub-option 241
 
   Cisco AP:
+      vci: Cisco AP
       description: Cisco Aironet Series APs
       option-def:
         parent-option:
@@ -86,6 +89,7 @@ vendors:
 
 
   Mitel:
+      vi: Mitel
       description: Mitel Phone (prepend 00000403)
       option-def:
         parent-option:
