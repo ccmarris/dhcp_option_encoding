@@ -44,13 +44,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------
 """
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __author__ = 'Chris Marrison'
 __email__ = 'chris@infoblox.com'
 
 import bloxone
 import argparse
 import logging
+from bloxone.dhcputils import dhcp_encode
 import yaml
 from pprint import pprint
 import os
@@ -60,12 +61,13 @@ def parseargs():
     # Parse arguments
     parser = argparse.ArgumentParser(description='DHCP Option Encoding and Decoding Utility')
     parser.add_argument('-c', '--config', action="store", help="Path to database file", required=True)
-    parser.add_argument('-p', '--output_path', action="store", default='', help="Output file path (optional)")
+    # parser.add_argument('-p', '--output_path', action="store", default='', help="Output file path (optional)")
     parser.add_argument('--dump', type=str, default='', help="Dump Vendor")
     parser.add_argument('--vendor', type=str, default='', help="Vendor Identifier")
+    parser.add_argument('--suboptions', type=str, default='', help="Sub Options to encode")
     parser.add_argument('-v', '--version', action='store_true', help="Config Version")
-    parser.add_argument('-y', '--yaml', action="store", help="Alternate yaml config file for objects")
-    parser.add_argument('--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    # parser.add_argument('-y', '--yaml', action="store", help="Alternate yaml config file for objects")
+    # parser.add_argument('--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     return parser.parse_args()
 
@@ -99,6 +101,40 @@ def process_vendor(vendor):
         else:
             print(f'Vendor: {vendor} has no sub-options to encode')
     
+    return
+
+def process_suboptions(sub_options):
+    '''
+    '''
+    global definitions
+    global dhcp_encoder
+
+    optionns= []
+    subopt = []
+    subopt_def = {}
+    suboptions_def = []
+
+    options = sub_options.split(',')
+    for option in options:
+        subopt = option.split(':')
+        if len(subopt) == 3:
+            if subopt[1] in dhcp_encoder.opt_types:
+                subopt_def = { 'code': subopt[0],
+                            'type': subopt[1],
+                            'data': subopt[2] }
+                suboptions_def.append(subopt_def)
+            else:
+                print(f'Option type: {subopt[1]} is not supported')
+                print(f'Supported types: {dhcp_encoder.opt_types}')
+        else:
+            print('--suboptions data incorrect format')
+            print('Format is "<code>:<type>:<data>,<code>:<type>:<data>,..."')
+            break
+    
+    if len(suboptions_def) == len(options):
+        encoding = dhcp_encoder.encode_dhcp_option(suboptions_def)
+        print(f'Encoded sub-options: {encoding}')
+
     return
 
 
@@ -136,6 +172,8 @@ def main():
         dump_vendor(options.dump)
     elif options.vendor:
         process_vendor(options.vendor)
+    elif options.suboptions:
+        process_suboptions(options.suboptions)
     else:
         process_all()
         
