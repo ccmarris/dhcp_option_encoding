@@ -1,0 +1,100 @@
+---
+# DHCP Vendor Option Definitions
+version: 0.0.1
+
+vendors:
+
+  Sample-Vendor:
+      description: My Vendor Class
+      option-def: 
+        parent-option:
+            name: option name
+            code: 43
+            type: binary
+            array: False
+        sub-options:
+          - name: Sub Opt 1
+            code: 1
+            type: string
+            data: Encode this string
+            array: False
+            data-only: False
+
+
+  MS-UC-Client:
+      description: Microsoft Lync Client
+      option-def:
+        parent-option:
+            name: option 43
+            code: 43
+            type: binary
+            array: false
+        sub-options:
+          - name: UC Identifier
+            code: 1
+            type: string
+            data: MS-UC-Client
+            array: false
+          - name: URL Scheme
+            code: 2
+            type: string
+            data: https
+            array: false
+          - name: Web Server FQDN
+            code: 3
+            type: string
+            data: epslync01.epsilonhq.local
+            array: false
+          - name: Web Server Port
+            code: 4
+            type: string
+            data: 443
+            array: false
+          - name: Certificate Web Service
+            code: 5
+            type: string
+            data: /CertProv/CertProvisioningService.svc
+            array: False
+
+
+  ####### CISCO
+  # Matches on Cisco AP xxxxx
+  # Option 43 sub-option 241
+
+  Cisco AP:
+      description: Cisco Aironet Series APs
+      option-def:
+        parent-option:
+            name: option 43
+            code: 43
+            type: binary
+            array: false
+        sub-options:
+          - name: Controller IP
+            code: 241
+            type: ipv4_address
+            data: 10.150.1.15,10.150.50.15
+            array: true
+
+
+  ####### MITEL
+
+  # No VCI needed since it’s just a binary/ascii conversion
+  # script.py -decode 69643a697070686f6e652e6d6974656c2e636f6d3b63616c6c5f7372763d583b766c616e3d583b647363703d34363b6c32703d583b73775f746674703d58
+
+  # script.py -encode "id:ipphone.mitel.com;call_srv=X;vlan=X;dscp=46;l2p=X;sw_tftp=X"
+
+
+  Mitel:
+      description: Mitel Phone (prepend 00000403)
+      option-def:
+        parent-option:
+          name: option 125
+          code: 125
+          type: binary
+          array: false
+        sub-options:
+          - code: 125
+            type: string
+            data: id:ipphone.mitel.com;call_srv=X;vlan=X;dscp=46;l2p=X;sw_tftp=X
+            data-only: True
