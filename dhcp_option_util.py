@@ -60,7 +60,7 @@ import os
 def parseargs():
     # Parse arguments
     parser = argparse.ArgumentParser(description='DHCP Option Encoding and Decoding Utility')
-    parser.add_argument('-c', '--config', action="store", help="Path to database file", required=True)
+    parser.add_argument('-c', '--config', action="store", help="Path to database file")
     # parser.add_argument('-p', '--output_path', action="store", default='', help="Output file path (optional)")
     parser.add_argument('--dump', type=str, default='', help="Dump Vendor")
     parser.add_argument('--vendor', type=str, default='', help="Vendor Identifier")
