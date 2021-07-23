@@ -7,6 +7,7 @@ vendors:
   Sample-Vendor:
       vci: sample-vci
       description: My Vendor Class
+      prefix: "<prefix str if required>"
       option-def: 
         parent-option:
             name: option name
@@ -20,6 +21,12 @@ vendors:
             data: Encode this string
             array: False
             data-only: False
+          - name: Sub Opt 2
+            code: 5
+            type: ipv4_address
+            data: 10.10.10.10,20.20.20.20
+            array: True
+            data-only: False
 
 
   MS-UC-Client:
@@ -30,28 +37,28 @@ vendors:
             name: option 43
             code: 43
             type: binary
-            array: false
+            array: False
         sub-options:
           - name: UC Identifier
             code: 1
             type: string
             data: MS-UC-Client
-            array: false
+            array: False
           - name: URL Scheme
             code: 2
             type: string
             data: https
-            array: false
+            array: False
           - name: Web Server FQDN
             code: 3
             type: string
             data: epslync01.epsilonhq.local
-            array: false
+            array: False
           - name: Web Server Port
             code: 4
             type: string
             data: 443
-            array: false
+            array: False
           - name: Certificate Web Service
             code: 5
             type: string
@@ -71,13 +78,13 @@ vendors:
             name: option 43
             code: 43
             type: binary
-            array: false
+            array: False
         sub-options:
           - name: Controller IP
             code: 241
             type: ipv4_address
             data: 10.150.1.15,10.150.50.15
-            array: true
+            array: True
 
 
   ####### MITEL
@@ -91,12 +98,13 @@ vendors:
   Mitel:
       vi: Mitel
       description: Mitel Phone (prepend 00000403)
+      prefix: "00000403"
       option-def:
         parent-option:
           name: option 125
           code: 125
           type: binary
-          array: false
+          array: False
         sub-options:
           - code: 125
             type: string

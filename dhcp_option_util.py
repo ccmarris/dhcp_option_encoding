@@ -44,14 +44,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------
 """
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __author__ = 'Chris Marrison'
 __email__ = 'chris@infoblox.com'
 
 import bloxone
 import argparse
 import logging
-from bloxone.dhcputils import dhcp_encode
 import yaml
 from pprint import pprint
 import os
@@ -59,13 +58,17 @@ import os
 
 def parseargs():
     # Parse arguments
-    parser = argparse.ArgumentParser(description='DHCP Option Encoding and Decoding Utility')
-    parser.add_argument('-c', '--config', action="store", help="Path to database file")
-    # parser.add_argument('-p', '--output_path', action="store", default='', help="Output file path (optional)")
+    parser = argparse.ArgumentParser(description='DHCP Option Encoding ' +
+                                    'and Decoding Utility')
+    parser.add_argument('-c', '--config', action="store",
+                         help="Path to vendor file")
     parser.add_argument('--dump', type=str, default='', help="Dump Vendor")
-    parser.add_argument('--vendor', type=str, default='', help="Vendor Identifier")
-    parser.add_argument('--suboptions', type=str, default='', help="Sub Options to encode")
-    parser.add_argument('-v', '--version', action='store_true', help="Config Version")
+    parser.add_argument('--vendor', type=str, default='',
+                        help="Vendor Identifier")
+    parser.add_argument('--suboptions', type=str, default='',
+                        help="Sub Options to encode")
+    parser.add_argument('--prefix', type=str, default='',
+                        help="Optional prefix for use with --suboptions")
     # parser.add_argument('-y', '--yaml', action="store", help="Alternate yaml config file for objects")
     # parser.add_argument('--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
@@ -95,15 +98,16 @@ def process_vendor(vendor):
 
     if definitions.included(vendor):
         sub_opts = definitions.sub_options(vendor)
+        prefix = definitions.vendor_prefix(vendor)
         if len(sub_opts):
-            encoded_opts = dhcp_encoder.encode_dhcp_option(sub_opts)
+            encoded_opts = prefix + dhcp_encoder.encode_dhcp_option(sub_opts)
             print(f'Vendor: {vendor}, Encoding: {encoded_opts}')
         else:
             print(f'Vendor: {vendor} has no sub-options to encode')
     
     return
 
-def process_suboptions(sub_options):
+def process_suboptions(sub_options, prefix=''):
     '''
     '''
     global definitions
@@ -133,6 +137,8 @@ def process_suboptions(sub_options):
     
     if len(suboptions_def) == len(options):
         encoding = dhcp_encoder.encode_dhcp_option(suboptions_def)
+        if prefix:
+            encoding = prefix + encoding
         print(f'Encoded sub-options: {encoding}')
 
     return
@@ -145,12 +151,7 @@ def process_all():
     global dhcp_encoder
 
     for vendor in definitions.vendors():
-        sub_opts = definitions.sub_options(vendor)
-        if len(sub_opts):
-            encoded_opts = dhcp_encoder.encode_dhcp_option(sub_opts)
-            print(f'Vendor: {vendor}, Encoding: {encoded_opts}')
-        else:
-            print(f'Vendor: {vendor} has no sub-options to encode')
+        process_vendor(vendor)
 
     return
 
@@ -173,7 +174,7 @@ def main():
     elif options.vendor:
         process_vendor(options.vendor)
     elif options.suboptions:
-        process_suboptions(options.suboptions)
+        process_suboptions(options.suboptions, prefix=options.prefix)
     else:
         process_all()
         
