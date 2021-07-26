@@ -44,7 +44,7 @@ Source is available from github::
 Usage
 -----
 
-Help information is available via the --help option.
+Help information is available via the --help option::
 
 	% ./dhcp_option_util.py --help
 	usage: dhcp_option_util.py [-h] [-c CONFIG] [--dump DUMP] [--vendor VENDOR] [--suboptions SUBOPTIONS] [--prefix PREFIX]
