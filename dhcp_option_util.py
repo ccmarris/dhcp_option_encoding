@@ -4,17 +4,17 @@
 ------------------------------------------------------------------------
 
  Description:
-  DHCP Hex Encoding/Decoding Utility for Option Encoding
+  Demonstration script for Hex Encoding/Decoding of DHCP Options
+  using the bloxone module
+  
 
  Requirements:
   bloxone
   yaml
 
- Usage:
-
  Author: Chris Marrison
 
- Date Last Updated: 20210722
+ Date Last Updated: 20210726
 
 Copyright 2021 Chris Marrison / Infoblox
 
@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------
 """
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 __author__ = 'Chris Marrison'
 __email__ = 'chris@infoblox.com'
 
@@ -110,10 +110,9 @@ def process_vendor(vendor):
 def process_suboptions(sub_options, prefix=''):
     '''
     '''
-    global definitions
     global dhcp_encoder
 
-    optionns= []
+    options= []
     subopt = []
     subopt_def = {}
     suboptions_def = []
@@ -166,17 +165,20 @@ def main():
     global definitions
     global dhcp_encoder
 
-    definitions = bloxone.DHCP_OPTION_DEFS(options.config)
     dhcp_encoder = bloxone.dhcp_encode()
-
-    if options.dump:
-        dump_vendor(options.dump)
-    elif options.vendor:
-        process_vendor(options.vendor)
-    elif options.suboptions:
+    # Check for direct options
+    if options.suboptions:
         process_suboptions(options.suboptions, prefix=options.prefix)
     else:
-        process_all()
+        definitions = bloxone.DHCP_OPTION_DEFS(options.config)
+
+        # Process using config file based on options
+        if options.dump:
+            dump_vendor(options.dump)
+        elif options.vendor:
+            process_vendor(options.vendor)
+        else:
+            process_all()
         
     return exitcode
 
