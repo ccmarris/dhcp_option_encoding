@@ -236,5 +236,5 @@ file for details.
 Aknowledgements
 ---------------
 
-Thanks to John Steele, John Neerdael and Sif for their input and thanks to 
-Don Smith for the vendor examples.
+Thanks to John Steele, John Neerdael and Sif Baksh for their input and thanks
+to Don Smith for the vendor examples.
