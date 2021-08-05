@@ -26,7 +26,7 @@ Modules
 Requires:
 
 	- bloxone
-    - yaml
+    - pyyaml
 
 
 Installing the bloxone Module
@@ -41,26 +41,30 @@ Source is available from github::
 	https://github.com/ccmarris/python-bloxone
 
 
-Usage
------
+User Guide
+----------
 
 Help information is available via the --help option::
 
-	% ./dhcp_option_util.py --help
-	usage: dhcp_option_util.py [-h] [-c CONFIG] [--dump DUMP] [--vendor VENDOR] [--suboptions SUBOPTIONS] [--prefix PREFIX]
+    % ./dhcp_option_util.py --helpusage: dhcp_option_util.py [-h] [-c CONFIG] 
+    [--vendor VENDOR] [--suboptions SUBOPTIONS] [--prefix PREFIX] 
+    [--decode DECODE] [--data_only] [--type TYPE] [--dump DUMP]
 
-	DHCP Option Encoding and Decoding Utility
+    DHCP Option Encoding and Decoding Utility
 
-	optional arguments:
-	-h, --help            show this help message and exit
-	-c CONFIG, --config CONFIG
-							Path to vendor file
-	--dump DUMP           Dump Vendor
-	--vendor VENDOR       Vendor Identifier
-	--suboptions SUBOPTIONS
-							Sub Options to encode
-	--prefix PREFIX       Optional prefix for use with --suboptions
-        
+    optional arguments:
+    -h, --help            show this help message and exit
+    -c CONFIG, --config CONFIG
+                            Path to vendor file
+    --vendor VENDOR       Vendor Identifier
+    --suboptions SUBOPTIONS
+                            Sub Options to encode
+    --prefix PREFIX       Optional prefix for use with --suboptions
+    --decode DECODE       Hex string to decode
+    --data_only           Decode hex as 'string' or specified by --type
+    --type TYPE           Optional data_type for --decode --data_only
+    --dump DUMP           Dump Vendor 
+
 
 The script allows encoding of DHCP Options through either the use of a YAML
 vendor dictionary file, or directly from the CLI.
@@ -68,7 +72,13 @@ vendor dictionary file, or directly from the CLI.
 A sample YAML file *vendor_dict.yaml* is included, whilst the file format is 
 described in the :ref:`yaml-format`.
 
-Basic examples::
+Encoding examples
++++++++++++++++++
+
+Encoding using the YAML vendor dictionary allows you to define both the
+structure and the data to encode for one or more vendors. A number of examples
+are included in the default *vendor_dict.yamnl* file, with the intention of
+adding additional vendors over time.
 
  
  To process all vendors in the configuration file::
@@ -86,7 +96,7 @@ Dump the configuarion of a vendor::
     $ ./dhcp_option_util.py -c vendor_dict.yaml --dump <vendor>
 
 
-The CLI also support direct encoding from the CLI using the *--sub-option*
+The script also supports direct encoding from the CLI using the *--sub-option*
 option. This allows you to specify options using the format::
     
     '<code>:<type>:<data>,<code>:<type>:<data>,<code>:<type>:<data>'
@@ -96,6 +106,33 @@ Encode direct from CLI::
 
     $ ./dhcp_option_util.py --sub-options '1:string:https,2:ipv4_address:10.10.10.10'
 
+
+Decoding examples
++++++++++++++++++
+
+Decoding will, by default, attempt to decode as a set of encoded sub-options
+but will also decode the provided hex as a single data string.
+
+It is also possible to either specify a vendor (using the vendor
+dictionary yaml file) or simple <code>:<type> definitions on the CLI using
+--suboptions allowing the user to specify the data types used for Decoding
+the data types. 
+
+To decode as data only it is possible to use the --data_only option and 
+optionally adding the data_type that should be used with --type. (By default
+data will be decoded using the string type.)
+
+.. Note: 
+    The --sub-option only uses *code* and *type* for decoding. Therefore a
+    simpler set can be defined using <code>:<type>,<code>:<type>,...
+
+Examples::
+
+    ./dhcp_option_util.py --decode <hex_string>
+    ./dhcp_option_util.py --decode <hex_string> --suboptions '1:string,2:ip'
+    ./dhcp_option_util.py --decode <hex_string> --vendor 'MS-UC-Client
+    ./dhcp_option_util.py --decode <hex_string> --data_only
+    ./dhcp_option_util.py --decode <hex_string> --data_only --type array_of_ip
 
     
 .. yaml-format:
