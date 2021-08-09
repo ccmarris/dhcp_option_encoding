@@ -14,7 +14,7 @@
 
  Author: Chris Marrison
 
- Date Last Updated: 20210805
+ Date Last Updated: 20210809
 
 Copyright 2021 Chris Marrison / Infoblox
 
@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 ------------------------------------------------------------------------
 """
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'Chris Marrison'
 __email__ = 'chris@infoblox.com'
 
@@ -76,6 +76,8 @@ def parseargs():
                         help="Decode hex as 'string' or specified by --type")
     parser.add_argument('--type', type=str, default='string',
                         help="Optional data_type for --decode --data_only")
+    exclusive.add_argument('--data_seq', type=str, default='',
+                        help="Encode set of <type>:<data> as single hex str")
     parser.add_argument('--dump', type=str, default='', help="Dump Vendor")
     # parser.add_argument('-y', '--yaml', action="store", help="Alternate yaml config file for objects")
     # parser.add_argument('--debug', help="Enable debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
@@ -191,6 +193,37 @@ def process_all():
     return
 
 
+def encode_data_set(data_set):
+    '''
+    '''
+    global dhcp_encoder
+    data_list = []
+    data_item = []
+    data = {}
+    hex_str = ''
+    
+    data_list = data_set.split(',')
+    for item in data_list:
+        data_item = item.split(':')
+        if len(data_item) == 2:
+            if data_item[0] in dhcp_encoder.opt_types:
+                data = { 'code': 1,
+                         'type': data_item[0],
+                         'data': data_item[1]}
+                hex_str += dhcp_encoder.encode_data(data)
+            else:
+                print(f'Option type: {data_item[0]} is not supported')
+                print(f'Supported types: {dhcp_encoder.opt_types}')
+        else:
+            print('--data_set for decode hex incorrect format')
+            print('Format is "<type>:<data>,<type>:<data>,..."')
+            break
+    
+    print(f'Encoded data dequence: {hex_str}')
+    print(f'Length (hex): {dhcp_encoder.hex_length(hex_str)}')
+    return 
+
+
 def decode_hex(hex_str, opt_defs=None, data_only=False, data_type='string'):
     '''
     '''
@@ -251,6 +284,8 @@ def main():
             decode_hex(options.decode, 
                        data_type=options.type, 
                        data_only=options.data_only)
+    elif options.data_seq:
+        encode_data_set(options.data_seq)
     else:
         definitions = bloxone.DHCP_OPTION_DEFS(options.config)
 
