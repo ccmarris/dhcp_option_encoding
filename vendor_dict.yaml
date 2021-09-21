@@ -1,10 +1,8 @@
 ---
 # DHCP Vendor Option Definitions
-version: 0.0.1
-
+version: 0.0.2
 vendors:
-
-  Sample-Vendor:
+    Sample-Vendor:
       vci: sample-vci
       description: My Vendor Class
       prefix: "<prefix str if required>"
@@ -29,7 +27,7 @@ vendors:
             data-only: False
 
 
-  MS-UC-Client:
+    MS-UC-Client:
       vci: MS-UC-Client
       description: Microsoft Lync Client
       option-def:
@@ -70,7 +68,7 @@ vendors:
   # Matches on Cisco AP xxxxx
   # Option 43 sub-option 241
 
-  Cisco AP:
+    Cisco AP:
       vci: Cisco AP
       description: Cisco Aironet Series APs
       option-def:
@@ -95,7 +93,7 @@ vendors:
   # script.py -encode "id:ipphone.mitel.com;call_srv=X;vlan=X;dscp=46;l2p=X;sw_tftp=X"
 
 
-  Mitel:
+    Mitel:
       vi: Mitel
       description: Mitel Phone (prepend 00000403)
       prefix: "00000403"
@@ -110,3 +108,67 @@ vendors:
             type: string
             data: id:ipphone.mitel.com;call_srv=X;vlan=X;dscp=46;l2p=X;sw_tftp=X
             data-only: True
+
+    ####### AASTRA
+    # Option 15 includes the vendor string Aastra IP-Phone
+    # Option 1 is used to specify the IP address of the VoIP server
+    # Option 5 is used to specify the voice vlan (ID 416 in this example). It must be different than data port VLAN ID
+
+    Aastra:
+        vci: OptiIpPhone
+        description: Aastra OptiIpPhone - prepends 0f code
+        prefix: 0f
+        option-def:
+            parent-option:
+                name: option 43
+                code: 43
+                type: binary
+                array: False
+            sub-options:
+                - name: Undefined
+                  code: 15
+                  type: string
+                  data: Aastra IP-Phone
+                  data-only: False
+                - name: Sub Opt 1
+                  code: 1 
+                  type: string
+                  data: 10.102.2.52                                                
+                  data-only: False
+                - name: Sub Opt 5
+                  code: 5
+                  type: string
+                  data-length: 3
+                  data: 416
+                  data-only: False
+
+    ####### Siemens
+    # Option 1 includes the vendor string Ericsson IP Phone
+    # Option 2 is used to specify the voice vlan (412 for this example). Phone boots in a data network and uses this option to find the right vlan
+    # Option 3 is used to specify the SDLP server
+
+    Siemens:
+        vci: Siemens IP-Phone
+        description: Siemens IP Phone
+        option-def:
+            parent-option:
+                name: option 43
+                code: 43
+                type: binary
+                array: False
+            sub-options:
+                - name: OptiIpPhone-1
+                  code: 1
+                  type: string
+                  data: Siemens
+                  data-only: False
+                - name: OptiIpPhone-2
+                  code: 2 
+                  type: uint32
+                  data: 412                                                
+                  data-only: False
+                - name: OptiIpPhone-3
+                  code: 3
+                  type: string
+                  data: sdlp://10.0.35.8:18443
+                  data-only: False
